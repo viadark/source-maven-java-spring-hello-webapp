@@ -33,7 +33,7 @@ pipeline {
     stage('Tag Docker Image') {
       agent any
       steps {
-        sh 'docker tag -t hello-world normalboot/hello-world:v1'
+        sh 'docker tag hello-world normalboot/hello-world:v1'
       }
     }
     stage('Publish Docker Image') {
