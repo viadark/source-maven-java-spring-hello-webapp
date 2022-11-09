@@ -1,0 +1,59 @@
+pipeline {
+  agent none
+
+  stages {
+    stage('Checkout') {
+      agent any
+      steps {
+        git branch: 'main', url: 'https://github.com/viadark/source-maven-java-spring-hello-webapp.git'
+      }
+    }
+    stage('Build') {
+      agent {
+        docker { image 'maven:3-openjdk-8' }
+      }
+      steps {
+        sh 'mvn clean package -DskipTests=true'
+      }
+    }
+    stage('Test') {
+      agent {
+        docker { image 'maven:3-openjdk-8' }
+      }
+      steps {
+        sh 'mvn test'
+      }
+    }
+    stage('Build Docker Image') {
+      agent any
+      steps {
+        sh 'docker build -t hello-world .'
+      }
+    }
+    stage('Tag Docker Image') {
+      agent any
+      steps {
+        sh 'docker tag hello-world normalboot/hello-world:v1'
+      }
+    }
+    stage('Publish Docker Image') {
+      agent any
+      steps {
+        withDockerRegistry(credentialsId: 'docker-hub-token', url: 'https://index.docker.io/v1/') {
+          sh 'docker push normalboot/hello-world:v1'
+        }
+      }
+    }
+    stage('Run Docker Container') {
+      agent {
+        docker { 
+          image 'normalboot/jenkins-ansible'
+          args '-u 0:0 -e DOCKER_HOST=tcp://172.31.18.204:2375'
+        }
+      }
+      steps {
+        ansiblePlaybook(playbook: 'docker-container-deploy.yaml')
+      }
+    }
+  }
+}
