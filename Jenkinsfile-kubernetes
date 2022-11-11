@@ -68,7 +68,7 @@ spec:
     }
     stage('Update K8s Manifests & Push') {
       environment {
-        githubUser = 'Kang Min Seok' //Ryan Jang
+        githubUser = 'minseok2.kang' //Ryan Jang
         githubEmail = 'viadark123@gmail.com' //c1t1d0s7@example.com
         githubId = 'viadark' //c1t1d0s7 
         githubRepo = 'deploy-kube-obj' //jenkins-kube-deploy
